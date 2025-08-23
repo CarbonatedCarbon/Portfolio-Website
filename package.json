@@ -1,6 +1,7 @@
+
 {
-  "homepage": "https://CarbonatedCarbon.github.io",
-  "name": "Portfolio Website",
+  "homepage": "https://developerfolio.js.org/",
+  "name": "developerfolio",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -51,7 +52,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "dotenv": "^8.2.0",
     "prettier": "^2.3.1"
   }

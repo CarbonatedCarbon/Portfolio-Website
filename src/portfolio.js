@@ -27,7 +27,7 @@ const greeting = {
   username: "Zain Arif",
   title: "Hey, this is Zain", //maybe teef the changing letters from karnygnan template
   subTitle: emoji(
-    "Showcasing my projects, contributions and development journey."
+    "Passion Projects & Data Analysis blogs"
   ),
   resumeLink:
     "https://drive.google.com/file/d/1ofFdKF_mqscH8WvXkSObnVvC9kK7Ldlu/view?usp=sharing", // Set to empty to hide the button
@@ -113,7 +113,7 @@ https://fontawesome.com/icons?d=gallery */
       fontAwesomeClassname: "fab fa-docker"
     }
   ],
-  display: true // Set false to hide this section, defaults to true
+  display: false // Set false to hide this section, defaults to true
 };
 
 // Education Section
@@ -122,24 +122,18 @@ const educationInfo = {
   display: false, // Set false to hide this section, defaults to true
   schools: [
     {
-      schoolName: "Harvard University",
-      logo: require("./assets/images/harvardLogo.png"),
-      subHeader: "Master of Science in Computer Science",
-      duration: "September 2017 - April 2019",
-      desc: "Participated in the research of XXX and published 3 papers.",
+      schoolName: "Nottingham Trent University",
+      logo: require("./assets/images/Trent.png"),
+      subHeader: "MComp Computer Science",
+      duration: "July 2022 - July 2025",
+      desc: "Participated in the research of Cricket match prediction and multiple group projects.",
       descBullets: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        "Trip planning application, flutter frontend and java Springboot web API",
+        "Cricket chatbot using AIML",
+        "Cricket match prediction using ODI match data from cricsheet",
+        "Binary search tree implementation in both Haskell and C++"
       ]
     },
-    {
-      schoolName: "Stanford University",
-      logo: require("./assets/images/stanfordLogo.png"),
-      subHeader: "Bachelor of Science in Computer Science",
-      duration: "September 2013 - April 2017",
-      desc: "Ranked top 10% in the program. Took courses about Software Engineering, Web Security, Operating Systems, ...",
-      descBullets: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit"]
-    }
   ]
 };
 
@@ -170,30 +164,18 @@ const workExperiences = {
   display: false, //Set it to true to show workExperiences Section
   experience: [
     {
-      role: "Software Engineer",
-      company: "Facebook",
+      role: "Accounting Intern",
+      company: "Insta Accountants Ltd",
       companylogo: require("./assets/images/facebookLogo.png"),
-      date: "June 2018 – Present",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      date: "Oct 2022 – Feb 2023",
+      desc: "Aided the lead accountant in admin responsibilities including data entry, bookkeeping duties.",
       descBullets: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        "Credit control - posting invoices and receipts onto QuickBooks, chasing payments from clients.",
+        "Create and maintain client data.",
+        "Integrated the company house API with the client data. Parsing Json files using excel.",
+        "Creating Microsoft Forms for client interactions"
       ]
     },
-    {
-      role: "Front-End Developer",
-      company: "Quora",
-      companylogo: require("./assets/images/quoraLogo.png"),
-      date: "May 2017 – May 2018",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-    },
-    {
-      role: "Software Engineer Intern",
-      company: "Airbnb",
-      companylogo: require("./assets/images/airbnbLogo.png"),
-      date: "Jan 2015 – Sep 2015",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-    }
   ]
 };
 
@@ -296,7 +278,7 @@ const achievementSection = {
       ]
     }
   ],
-  display: true // Set false to hide this section, defaults to true
+  display: false // Set false to hide this section, defaults to true
 };
 
 // Blogs Section
@@ -304,7 +286,7 @@ const achievementSection = {
 const blogSection = {
   title: "Blogs",
   subtitle:
-    "Here I document my learning goals and future prospects.",
+    "love letters and seasonal cricket analysis.",
   displayMediumBlogs: "true", // Set true to display fetched medium blogs instead of hardcoded ones
   blogs: [
     {
