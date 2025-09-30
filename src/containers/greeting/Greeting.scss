@@ -1,4 +1,4 @@
-@import "../../_globalColor";
+@use "../../_globalColor" as *;
 
 .main {
   width: 90%;
@@ -50,7 +50,15 @@
 
 .greeting-image-div > img {
   max-width: 100%;
+  width: 100%;
   height: auto;
+  display: block;
+}
+
+/* Scale down Lottie container (the direct child div) by 20% */
+.greeting-image-div > div {
+  transform: scale(0.8);
+  transform-origin: center;
 }
 
 .coffee-emoji {
@@ -111,7 +119,7 @@
     display: block;
   }
   .greeting-image-div {
-    height: 256px;
+    height: auto;
   }
 }
 

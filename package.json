@@ -1,5 +1,5 @@
 {
-  "homepage": "https://carbonatedcarbon.github.io/Portfolio-Website",
+  "homepage": "/Portfolio-Website",
   "name": "Portfolio Website",
   "version": "0.1.0",
   "private": true,
@@ -18,7 +18,7 @@
     "react-scripts": "^5.0.1",
     "react-test-renderer": "^16.10.2",
     "react-twitter-embed": "3.0.3",
-    "sass": "^1.32.8"
+    "sass": "^1.93.2"
   },
   "scripts": {
     "predeploy": "npm run build",
