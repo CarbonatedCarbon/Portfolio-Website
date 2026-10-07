@@ -13,6 +13,18 @@ export default function GithubRepoCard({repo, isDark}) {
     win.focus();
   }
 
+  // Extract and normalize topics/tags
+  let topics = [];
+  if (Array.isArray(repo?.node?.repositoryTopics)) {
+    topics = repo.node.repositoryTopics
+      .map(t => (typeof t === "string" ? t : t?.topic?.name || t?.name || ""))
+      .filter(Boolean);
+  } else if (Array.isArray(repo?.node?.repositoryTopics?.nodes)) {
+    topics = repo.node.repositoryTopics.nodes
+      .map(n => n?.topic?.name || "")
+      .filter(Boolean);
+  }
+
   return (
     <Fade bottom duration={1000} distance="20px">
       <div>
@@ -38,6 +50,18 @@ export default function GithubRepoCard({repo, isDark}) {
             <p className="repo-name">{repo.node.name}</p>
           </div>
           <p className="repo-description">{repo.node.description}</p>
+          {topics.length > 0 && (
+            <div className="repo-topics-div">
+              {topics.map((tag, i) => (
+                <span
+                  key={i}
+                  className={isDark ? "repo-tag dark-mode-tag" : "repo-tag"}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
           <div className="repo-stats">
             <div className="repo-left-stat">
               {repo.node.primaryLanguage !== null && (

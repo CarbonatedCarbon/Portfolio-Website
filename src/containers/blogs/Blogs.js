@@ -22,22 +22,48 @@ export default function Blogs() {
   }
   useEffect(() => {
     if (blogSection.displayMediumBlogs === "true") {
+      const mediumUsername = blogSection.mediumUsername || "gameplays322";
+      const liveMediumUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${mediumUsername}`;
+
       const getProfileData = () => {
-        fetch(`${process.env.PUBLIC_URL || ''}/blogs.json`)
+        // Try fetching live Medium stories first
+        fetch(liveMediumUrl)
           .then(result => {
             if (result.ok) {
               return result.json();
             }
+            throw new Error(`Live Medium fetch failed with status: ${result.status}`);
           })
           .then(response => {
-            setMediumBlogsFunction(response.items);
+            if (response && response.status === "ok" && Array.isArray(response.items)) {
+              setMediumBlogsFunction(response.items);
+            } else {
+              throw new Error("Invalid response structure from live Medium RSS feed");
+            }
           })
-          .catch(function (error) {
-            console.error(
-              `${error} (because of this error Blogs section could not be displayed. Blogs section has reverted to default)`
+          .catch(liveError => {
+            console.warn(
+              "Live Medium fetch failed, falling back to local blogs.json snapshot:",
+              liveError
             );
-            setMediumBlogsFunction("Error");
-            blogSection.displayMediumBlogs = "false";
+            // Fallback to local snapshot
+            fetch(`${process.env.PUBLIC_URL || ""}/blogs.json`)
+              .then(result => {
+                if (result.ok) {
+                  return result.json();
+                }
+                throw result;
+              })
+              .then(response => {
+                setMediumBlogsFunction(response.items || []);
+              })
+              .catch(fallbackError => {
+                console.error(
+                  `${fallbackError} (Blogs section reverted to hardcoded defaults)`
+                );
+                setMediumBlogsFunction("Error");
+                blogSection.displayMediumBlogs = "false";
+              });
           });
       };
       getProfileData();

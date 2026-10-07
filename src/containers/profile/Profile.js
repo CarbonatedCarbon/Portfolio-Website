@@ -15,22 +15,43 @@ export default function Profile() {
 
   useEffect(() => {
     if (openSource.showGithubProfile === "true") {
+      const username = openSource.githubUserName || "CarbonatedCarbon";
       const getProfileData = () => {
-        fetch(`${process.env.PUBLIC_URL || ''}/profile.json`)
+        fetch(`https://api.github.com/users/${username}`)
           .then(result => {
             if (result.ok) {
               return result.json();
             }
+            throw new Error("Live GitHub profile fetch failed");
           })
-          .then(response => {
-            setProfileFunction(response.data.user);
+          .then(userData => {
+            setProfileFunction({
+              name: userData.name || username,
+              bio: userData.bio || "",
+              avatarUrl: userData.avatar_url,
+              location: userData.location,
+              id: userData.node_id || userData.id
+            });
           })
-          .catch(function (error) {
-            console.error(
-              `${error} (because of this error GitHub contact section could not be displayed. Contact section has reverted to default)`
-            );
-            setProfileFunction("Error");
-            openSource.showGithubProfile = "false";
+          .catch(() => {
+            fetch(`${process.env.PUBLIC_URL || ""}/profile.json`)
+              .then(result => {
+                if (result.ok) {
+                  return result.json();
+                }
+              })
+              .then(response => {
+                if (response && response.data && response.data.user) {
+                  setProfileFunction(response.data.user);
+                }
+              })
+              .catch(function (error) {
+                console.error(
+                  `${error} (Contact section has reverted to default)`
+                );
+                setProfileFunction("Error");
+                openSource.showGithubProfile = "false";
+              });
           });
       };
       getProfileData();

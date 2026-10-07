@@ -48,6 +48,13 @@ if (USE_GITHUB_DATA === "true") {
                 name
                 color
               }
+              repositoryTopics(first: 10) {
+                nodes {
+                  topic {
+                    name
+                  }
+                }
+              }
             }
           }
         }

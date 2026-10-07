@@ -183,6 +183,7 @@ const workExperiences = {
 To know how to get github key look at readme.md */
 
 const openSource = {
+  githubUserName: "CarbonatedCarbon",
   showGithubProfile: "true", // Set true or false to show Contact profile using Github, defaults to true
   display: true // Set false to hide this section, defaults to true
 };
@@ -287,6 +288,7 @@ const blogSection = {
   title: "Blogs",
   subtitle:
     "love letters and seasonal cricket analysis.",
+  mediumUsername: "gameplays322", // Username for live Medium RSS feed
   displayMediumBlogs: "true", // Set true to display fetched medium blogs instead of hardcoded ones
   blogs: [
     {
