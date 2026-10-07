@@ -24,47 +24,58 @@ export default function Blogs() {
     if (blogSection.displayMediumBlogs === "true") {
       const mediumUsername = blogSection.mediumUsername || "gameplays322";
       const liveMediumUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${mediumUsername}`;
+      // blogs.json is regenerated hourly by GitHub Actions directly from Medium's RSS.
+      // The timestamp query bypasses the browser/GitHub Pages cache so the newest snapshot is used.
+      const snapshotUrl = `${process.env.PUBLIC_URL || ""}/blogs.json?v=${Date.now()}`;
 
-      const getProfileData = () => {
-        // Try fetching live Medium stories first
-        fetch(liveMediumUrl)
+      const loadFeed = url =>
+        fetch(url)
           .then(result => {
             if (result.ok) {
               return result.json();
             }
-            throw new Error(`Live Medium fetch failed with status: ${result.status}`);
+            throw new Error(`Request to ${url} failed with status: ${result.status}`);
           })
           .then(response => {
-            if (response && response.status === "ok" && Array.isArray(response.items)) {
-              setMediumBlogsFunction(response.items);
-            } else {
-              throw new Error("Invalid response structure from live Medium RSS feed");
+            if (response && Array.isArray(response.items)) {
+              return response.items;
             }
+            throw new Error(`Invalid feed structure from ${url}`);
           })
-          .catch(liveError => {
-            console.warn(
-              "Live Medium fetch failed, falling back to local blogs.json snapshot:",
-              liveError
-            );
-            // Fallback to local snapshot
-            fetch(`${process.env.PUBLIC_URL || ""}/blogs.json`)
-              .then(result => {
-                if (result.ok) {
-                  return result.json();
-                }
-                throw result;
-              })
-              .then(response => {
-                setMediumBlogsFunction(response.items || []);
-              })
-              .catch(fallbackError => {
-                console.error(
-                  `${fallbackError} (Blogs section reverted to hardcoded defaults)`
-                );
-                setMediumBlogsFunction("Error");
-                blogSection.displayMediumBlogs = "false";
-              });
+          .catch(error => {
+            console.warn(error);
+            return null;
           });
+
+      // Feed dates look like "YYYY-MM-DD HH:mm:ss" (UTC)
+      const newestDate = items =>
+        items.reduce((latest, item) => {
+          const time = Date.parse(String(item.pubDate || "").replace(" ", "T") + "Z");
+          return isNaN(time) ? latest : Math.max(latest, time);
+        }, 0);
+
+      const getProfileData = () => {
+        // rss2json can serve a stale cached copy of the feed, so load both sources
+        // and display whichever one contains the most recent article.
+        Promise.all([loadFeed(liveMediumUrl), loadFeed(snapshotUrl)]).then(
+          ([liveItems, snapshotItems]) => {
+            const feeds = [liveItems, snapshotItems].filter(
+              items => items && items.length > 0
+            );
+            if (feeds.length === 0) {
+              console.error(
+                "No Medium articles could be loaded (Blogs section reverted to hardcoded defaults)"
+              );
+              setMediumBlogsFunction("Error");
+              blogSection.displayMediumBlogs = "false";
+              return;
+            }
+            const freshest = feeds.reduce((best, items) =>
+              newestDate(items) > newestDate(best) ? items : best
+            );
+            setMediumBlogsFunction(freshest);
+          }
+        );
       };
       getProfileData();
     }

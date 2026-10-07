@@ -4,9 +4,6 @@ import Button from "../../components/button/Button";
 import {openSource, socialMediaLinks} from "../../portfolio";
 import StyleContext from "../../contexts/StyleContext";
 import Loading from "../../containers/loading/Loading";
-const PINNED_CACHE_KEY = "portfolio_pinned_repos_cache_v1";
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-
 export default function Projects() {
   const GithubRepoCard = lazy(() =>
     import("../../components/githubRepoCard/GithubRepoCard")
@@ -14,35 +11,16 @@ export default function Projects() {
   const FailedLoading = () => null;
   const renderLoader = () => <Loading />;
   const [repo, setrepo] = useState([]);
+  // todo: remove useContex because is not supported
   const {isDark} = useContext(StyleContext);
 
   useEffect(() => {
-    let isMounted = true;
-    const username = openSource.githubUserName || "CarbonatedCarbon";
-
-    // 1. Check local storage cache for instant render
-    let hasValidCache = false;
-    try {
-      const cached = localStorage.getItem(PINNED_CACHE_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (
-          parsed &&
-          Array.isArray(parsed.data) &&
-          parsed.timestamp &&
-          Date.now() - parsed.timestamp < CACHE_TTL_MS
-        ) {
-          setrepo(parsed.data);
-          hasValidCache = true;
-        }
-      }
-    } catch (e) {
-      console.warn("Could not read pinned repos cache from localStorage:", e);
-    }
-
-    // Helper: fallback to local public/profile.json
-    const fallbackToProfileJson = () => {
-      fetch(`${process.env.PUBLIC_URL || ""}/profile.json`)
+    // profile.json is generated from GitHub's official GraphQL API (see fetch.js) and is
+    // rebuilt hourly by GitHub Actions, so it reflects the current pinned repos, their
+    // order and their topic tags. The timestamp query bypasses the browser/GitHub Pages
+    // cache so visitors always receive the most recent snapshot.
+    const getRepoData = () => {
+      fetch(`${process.env.PUBLIC_URL || ""}/profile.json?v=${Date.now()}`)
         .then(result => {
           if (result.ok) {
             return result.json();
@@ -50,125 +28,21 @@ export default function Projects() {
           throw result;
         })
         .then(response => {
-          if (isMounted) {
-            const edges = response?.data?.user?.pinnedItems?.edges || [];
-            setrepo(edges);
-          }
+          setrepoFunction(response.data.user.pinnedItems.edges);
         })
-        .catch(error => {
+        .catch(function (error) {
           console.error(
-            `${error} (because of this error, nothing is shown in place of Projects section)`
+            `${error} (because of this error, nothing is shown in place of Projects section. Also check if Projects section has been configured)`
           );
-          if (isMounted && !hasValidCache) {
-            setrepo("Error");
-          }
+          setrepoFunction("Error");
         });
     };
-
-    // 2. Fetch live pinned repositories
-    const fetchLivePinnedRepos = async () => {
-      try {
-        const liveRes = await fetch(
-          `https://pinned.berrysauce.dev/get/${username}`
-        );
-        if (!liveRes.ok) {
-          throw new Error(`Live pinned API returned status: ${liveRes.status}`);
-        }
-        const pinnedList = await liveRes.json();
-        if (!Array.isArray(pinnedList) || pinnedList.length === 0) {
-          throw new Error("No pinned repositories returned");
-        }
-
-        // Fetch topics and details in parallel for each repo
-        const enrichedEdges = await Promise.all(
-          pinnedList.map(async (item, idx) => {
-            let topics = [];
-            let extraDescription = item.description;
-            let extraStars = item.stars || 0;
-            let extraForks = item.forks || 0;
-            let extraSize = 0;
-            let repoUrl = `https://github.com/${item.author}/${item.name}`;
-
-            try {
-              const ghRes = await fetch(
-                `https://api.github.com/repos/${item.author}/${item.name}`
-              );
-              if (ghRes.ok) {
-                const ghData = await ghRes.json();
-                if (Array.isArray(ghData.topics)) {
-                  topics = ghData.topics;
-                }
-                if (ghData.description) {
-                  extraDescription = ghData.description;
-                }
-                if (typeof ghData.stargazers_count === "number") {
-                  extraStars = ghData.stargazers_count;
-                }
-                if (typeof ghData.forks_count === "number") {
-                  extraForks = ghData.forks_count;
-                }
-                if (typeof ghData.size === "number") {
-                  extraSize = ghData.size;
-                }
-                if (ghData.html_url) {
-                  repoUrl = ghData.html_url;
-                }
-              }
-            } catch (err) {
-              console.warn(
-                `Could not fetch extra metadata for ${item.name}:`,
-                err
-              );
-            }
-
-            return {
-              node: {
-                id: `live_${item.author}_${item.name}_${idx}`,
-                name: item.name,
-                description: extraDescription,
-                url: repoUrl,
-                forkCount: extraForks,
-                stargazers: {
-                  totalCount: extraStars
-                },
-                diskUsage: extraSize,
-                primaryLanguage: item.language
-                  ? {
-                      name: item.language,
-                      color: item.languageColor || "#888888"
-                    }
-                  : null,
-                repositoryTopics: topics
-              }
-            };
-          })
-        );
-
-        if (isMounted) {
-          setrepo(enrichedEdges);
-          try {
-            localStorage.setItem(
-              PINNED_CACHE_KEY,
-              JSON.stringify({timestamp: Date.now(), data: enrichedEdges})
-            );
-          } catch (e) {
-            console.warn("Could not save to localStorage:", e);
-          }
-        }
-      } catch (liveError) {
-        console.warn("Live pinned fetch failed, using fallback:", liveError);
-        if (!hasValidCache) {
-          fallbackToProfileJson();
-        }
-      }
-    };
-
-    fetchLivePinnedRepos();
-
-    return () => {
-      isMounted = false;
-    };
+    getRepoData();
   }, []);
+
+  function setrepoFunction(array) {
+    setrepo(array);
+  }
   if (
     !(typeof repo === "string" || repo instanceof String) &&
     openSource.display

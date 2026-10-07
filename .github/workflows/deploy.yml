@@ -3,7 +3,8 @@ name: Build and Deploy
 env:
   CI: false
   GITHUB_USERNAME: ${{ github.repository_owner }}
-  REACT_APP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Personal access token stored as the GH_PAT repository secret. Falls back to GITHUB_TOKEN if not set.
+  REACT_APP_GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
   USE_GITHUB_DATA: "true"
   MEDIUM_USERNAME: "gameplays322"
 
@@ -14,7 +15,11 @@ on:
       - main
       - master
   schedule:
-    - cron: "0 0 * * *" # Daily automatic build snapshot at midnight UTC
+    - cron: "0 * * * *" # Hourly rebuild: refreshes pinned repos (profile.json) and Medium articles (blogs.json)
+
+concurrency:
+  group: build-and-deploy
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
