@@ -15,7 +15,7 @@ on:
       - main
       - master
   schedule:
-    - cron: "0 * * * *" # Hourly rebuild: refreshes pinned repos (profile.json) and Medium articles (blogs.json)
+    - cron: "0 0 * * *" # end of day rebuild: refreshes pinned repos (profile.json) and Medium articles (blogs.json)
 
 concurrency:
   group: build-and-deploy
